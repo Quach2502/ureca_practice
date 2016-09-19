@@ -1,6 +1,5 @@
-from sklearn.naive_bayes import MultinomialNB
 #from sklearn.neighbors import KNeighborsClassifier
-#from sklearn.neighbors import RadiusNeighborsClassifier
+from sklearn.neighbors import RadiusNeighborsClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import accuracy_score
 from nltk.stem.snowball import SnowballStemmer
@@ -61,7 +60,7 @@ def preprocessData():
 
 def main():
     features_train, features_test, labels_train, labels_test, vectorizer = preprocessData()
-    clf  = MultinomialNB()
+    clf = RadiusNeighborsClassifier(weights='distance',algorithm='brute',radius=1.5)
     # fit/train
     t0 = time()
     clf.fit(features_train, labels_train)
