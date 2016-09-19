@@ -1,7 +1,7 @@
 #from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neighbors import RadiusNeighborsClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics import accuracy_score
+from sklearn import metrics
 from nltk.stem.snowball import SnowballStemmer
 from nltk.corpus import stopwords
 from nltk import word_tokenize
@@ -11,7 +11,7 @@ import random
 import string
 
 stemmer = SnowballStemmer('english')
-list_stopword = [var for var in stopwords.words('english') if var not in ['not']]
+list_stopword = [var for var in stopwords.words('english') if var not in ['not','isn']]
 
 
 def stem_tokens(tokens, stemmer):
@@ -55,12 +55,12 @@ def preprocessData():
                                  max_df=0.8)
     features_train_transformed = vectorizer.fit_transform(features_train).toarray()
     features_test_transformed = vectorizer.transform(features_test).toarray()
-    return features_train_transformed, features_test_transformed, labels_train, labels_test, vectorizer
+    return features_test,features_train_transformed, features_test_transformed, labels_train, labels_test, vectorizer
 
 
 def main():
-    features_train, features_test, labels_train, labels_test, vectorizer = preprocessData()
-    clf = RadiusNeighborsClassifier(weights='distance',algorithm='brute',radius=1.5)
+    original_features_test,features_train, features_test, labels_train, labels_test, vectorizer = preprocessData()
+    clf = RadiusNeighborsClassifier(weights='distance',algorithm='brute',radius=2)
     # fit/train
     t0 = time()
     clf.fit(features_train, labels_train)
@@ -69,11 +69,12 @@ def main():
     t0 = time()
     pred = clf.predict(features_test)
     print "predicting time:", round(time() - t0, 3), "s"  # accuracy
-    accuracy = accuracy_score(labels_test, pred)
-
-    print accuracy
-    print clf.predict(vectorizer.transform(['terrible']).toarray())
-
+    print metrics.accuracy_score(labels_test, pred)
+    print clf.predict(vectorizer.transform(['awesome']).toarray()) #for testing specific string
+    for i in range(1,len(pred)):  #print out all false result
+        if labels_test[i] != pred[i]:
+            print original_features_test[i] + '\t' + pred[i]
+    print metrics.confusion_matrix(labels_test,pred)
 
 if __name__ == "__main__":
     main()
