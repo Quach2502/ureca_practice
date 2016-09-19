@@ -10,7 +10,8 @@ import random
 import string
 
 stemmer = SnowballStemmer('english')
-list_stopword = [var for var in stopwords.words('english') if var not in ['not','nothing']]
+list_stopword = [var for var in stopwords.words('english') if var not in ['not','nothing','wasn']]
+print list_stopword
 
 def stem_tokens(tokens, stemmer):
     stemmed = []
