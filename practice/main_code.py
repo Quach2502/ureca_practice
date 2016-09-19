@@ -1,4 +1,6 @@
-from sklearn.naive_bayes import GaussianNB
+#from sklearn.naive_bayes import GaussianNB
+#from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import RadiusNeighborsClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import accuracy_score
 from nltk.stem.snowball import SnowballStemmer
@@ -8,10 +10,11 @@ from time import time
 import nltk
 import random
 import string
+import re
 
 stemmer = SnowballStemmer('english')
-list_stopword = [var for var in stopwords.words('english') if var not in ['not','nothing','wasn']]
-print list_stopword
+list_stopword = [var for var in stopwords.words('english') if var not in ['not']]
+
 
 def stem_tokens(tokens, stemmer):
     stemmed = []
@@ -49,7 +52,8 @@ def preprocessData():
     labels_train = positive_result[0:400] + negative_result[0:400]
     labels_test = positive_result[400:] + negative_result[400:]
     # vectorizer
-    vectorizer = TfidfVectorizer(lowercase=True,tokenizer=tokenize, sublinear_tf=True, ngram_range=(1, 7),stop_words=list_stopword,
+    vectorizer = TfidfVectorizer(tokenizer=tokenize, sublinear_tf=True, ngram_range=(1, 6),
+                                 stop_words=list_stopword,
                                  max_df=0.8)
     features_train_transformed = vectorizer.fit_transform(features_train).toarray()
     features_test_transformed = vectorizer.transform(features_test).toarray()
@@ -58,7 +62,7 @@ def preprocessData():
 
 def main():
     features_train, features_test, labels_train, labels_test, vectorizer = preprocessData()
-    clf = GaussianNB()
+    clf = RadiusNeighborsClassifier(weights='distance', radius=3, algorithm='brute')
     # fit/train
     t0 = time()
     clf.fit(features_train, labels_train)
@@ -68,9 +72,9 @@ def main():
     pred = clf.predict(features_test)
     print "predicting time:", round(time() - t0, 3), "s"  # accuracy
     accuracy = accuracy_score(labels_test, pred)
-    print accuracy
-    print clf.predict(vectorizer.transform(['i love it']).toarray())
 
+    print accuracy
+    print clf.predict(vectorizer.transform(['terrible']).toarray())
 
 
 if __name__ == "__main__":
