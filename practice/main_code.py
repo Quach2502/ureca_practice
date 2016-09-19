@@ -1,4 +1,4 @@
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import accuracy_score
 from time import time
@@ -37,7 +37,7 @@ def preprocessData():
 
 def main():
     features_train, features_test, labels_train, labels_test = preprocessData()
-    clf = GaussianNB()
+    clf = MultinomialNB()
     # fit/train
     t0 = time()
     clf.fit(features_train, labels_train)
