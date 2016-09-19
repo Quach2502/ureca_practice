@@ -1,9 +1,28 @@
 from sklearn.naive_bayes import GaussianNB
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import accuracy_score
+from nltk.stem.snowball import SnowballStemmer
+from nltk.corpus import stopwords
+from nltk import word_tokenize
 from time import time
+import nltk
 import random
 import string
+
+stemmer = SnowballStemmer('english')
+list_stopword = [var for var in stopwords.words('english') if var not in ['not','nothing']]
+
+def stem_tokens(tokens, stemmer):
+    stemmed = []
+    for item in tokens:
+        stemmed.append(stemmer.stem(item))
+    return stemmed
+
+
+def tokenize(text):
+    tokens = word_tokenize(text)
+    stems = stem_tokens(tokens, stemmer)
+    return stems
 
 
 def preprocessData():
@@ -15,12 +34,12 @@ def preprocessData():
     negative_result = []
     for each in text_list:
         each = each.translate(string.maketrans("", ""), string.punctuation)
-        each = each.replace('\t', "").replace('\n', '')
+        each = each.replace('\t', "").replace('\n', '').lower().strip()
         if each[-1] == '1':
-            positive_list.append(each[:-1])
+            positive_list.append(each[:-1].strip())
             positive_result.append('1')
         else:
-            negative_list.append(each[:-1])
+            negative_list.append(each[:-1].strip())
             negative_result.append('0')
     random.shuffle(positive_list)
     random.shuffle(negative_list)
@@ -29,14 +48,15 @@ def preprocessData():
     labels_train = positive_result[0:400] + negative_result[0:400]
     labels_test = positive_result[400:] + negative_result[400:]
     # vectorizer
-    vectorizer = TfidfVectorizer(sublinear_tf=True, ngram_range=(1, 7), stop_words='english', max_df=0.8)
+    vectorizer = TfidfVectorizer(lowercase=True,tokenizer=tokenize, sublinear_tf=True, ngram_range=(1, 7),stop_words=list_stopword,
+                                 max_df=0.8)
     features_train_transformed = vectorizer.fit_transform(features_train).toarray()
     features_test_transformed = vectorizer.transform(features_test).toarray()
-    return features_train_transformed, features_test_transformed, labels_train, labels_test
+    return features_train_transformed, features_test_transformed, labels_train, labels_test, vectorizer
 
 
 def main():
-    features_train, features_test, labels_train, labels_test = preprocessData()
+    features_train, features_test, labels_train, labels_test, vectorizer = preprocessData()
     clf = GaussianNB()
     # fit/train
     t0 = time()
@@ -45,10 +65,11 @@ def main():
     # predict
     t0 = time()
     pred = clf.predict(features_test)
-
     print "predicting time:", round(time() - t0, 3), "s"  # accuracy
     accuracy = accuracy_score(labels_test, pred)
     print accuracy
+    print clf.predict(vectorizer.transform(['i love it']).toarray())
+
 
 
 if __name__ == "__main__":
