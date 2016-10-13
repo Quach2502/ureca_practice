@@ -75,17 +75,22 @@ def main():
     pred = clf.predict(features_test)
     print "predicting time:", round(time() - t0, 3), "s"  # accuracy
     print metrics.accuracy_score(labels_test, pred)
+
     print clf.predict(vectorizer.transform(['awesome']).toarray())  # for testing specific string
-    for i in range(1, len(pred)):  # print out all false result
-        if labels_test[i] != pred[i]:
-            print original_features_test[i] + '\t' + pred[i]
-    print metrics.confusion_matrix(labels_test, pred)
-    features_train_tokens = vectorizer.get_feature_names()
-    positive_count = clf.feature_count_[1, :]
-    negative_count = clf.feature_count_[0, :]
-    tokens = pd.DataFrame({'token': features_train_tokens, 'positive': positive_count, 'negative': negative_count})
-    tokens['negative_ratio'] = (tokens.negative+1) / (tokens.positive+1)
-    print tokens.sort_values('negative_ratio',ascending=False)
+
+    # for i in range(1, len(pred)):  # print out all false result
+    #     if labels_test[i] != pred[i]:
+    #         print original_features_test[i] + '\t' + pred[i]
+    print original_features_train[0]
+    for each in features_train[0]:
+        print each
+    #print metrics.confusion_matrix(labels_test, pred)
+    # features_train_tokens = vectorizer.get_feature_names()
+    # positive_count = clf.feature_count_[1, :]
+    # negative_count = clf.feature_count_[0, :]
+    # tokens = pd.DataFrame({'token': features_train_tokens, 'positive': positive_count, 'negative': negative_count})
+    # tokens['negative_ratio'] = (tokens.negative+1) / (tokens.positive+1)
+    # print tokens.sort_values('negative_ratio',ascending=False)
 
 
 
